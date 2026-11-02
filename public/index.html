@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CSMAFIA Creator Hub</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">CSMAFIA<span>.hub</span></div>
+    <nav class="nav-list">
+      <button class="nav active" data-tab="overview">Overview</button>
+      <button class="nav" data-tab="tiktok">TikTok</button>
+      <button class="nav" data-tab="csmafia">CSMAFIA</button>
+    </nav>
+    <div class="side-user" id="sideUser"></div>
+  </aside>
+
+  <main>
+    <header class="topbar">
+      <h1 id="pageTitle">Overview</h1>
+      <div class="controls">
+        <select id="currency" aria-label="Currency">
+          <option value="USD">USD</option>
+          <option value="GBP">GBP</option>
+          <option value="PLN">PLN</option>
+        </select>
+        <button id="loginBtn" class="btn">Log in with TikTok</button>
+      </div>
+    </header>
+
+    <!-- OVERVIEW -->
+    <section class="tab" id="tab-overview">
+      <div class="gate" id="gateOverview" hidden>
+        <p>Log in with TikTok to see your video analytics.</p>
+        <a class="btn" href="/auth/tiktok">Log in with TikTok</a>
+      </div>
+      <div id="overviewBody" hidden>
+        <div class="cards" id="ovCards"></div>
+        <div class="row2">
+          <div class="card">
+            <h3>Views per video</h3>
+            <div class="chart"><canvas id="chartViews"></canvas></div>
+          </div>
+          <div class="card">
+            <h3>Views by weekday (median)</h3>
+            <div class="chart"><canvas id="chartWeekday"></canvas></div>
+          </div>
+        </div>
+        <div class="row2">
+          <div class="card">
+            <h3>Top videos</h3>
+            <ul class="list" id="topList"></ul>
+          </div>
+          <div class="card">
+            <h3>Best times to post (UTC)</h3>
+            <ul class="list" id="bestTimes"></ul>
+          </div>
+        </div>
+      </div>
+      <div class="card" id="overviewEmpty" hidden>
+        <h3>No data yet</h3>
+        <p class="muted">Go to the TikTok tab, save your profile link and press “Sync videos”.</p>
+      </div>
+    </section>
+
+    <!-- TIKTOK -->
+    <section class="tab" id="tab-tiktok" hidden>
+      <div class="gate" id="gateTiktok" hidden>
+        <p>Log in with TikTok to connect your profile.</p>
+        <a class="btn" href="/auth/tiktok">Log in with TikTok</a>
+      </div>
+      <div id="tiktokBody" hidden>
+        <div class="row2">
+          <div class="card">
+            <h3>Profile</h3>
+            <form id="profileForm" class="stack">
+              <input id="profileUrl" type="url" placeholder="https://www.tiktok.com/@yourname" required>
+              <button class="btn" type="submit">Save profile link</button>
+            </form>
+            <p class="muted small">Only your own logged-in account can be analysed through the official TikTok API.</p>
+          </div>
+          <div class="card">
+            <h3>Sync</h3>
+            <p class="muted" id="syncInfo">Never synced</p>
+            <button class="btn" id="syncBtn">Sync videos</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Breakout predictor</h3>
+          <p class="muted small">Paste the link of a new or existing video. We estimate the breakout chance from your own history.</p>
+          <form id="predForm" class="pred-form">
+            <input id="videoUrl" type="url" placeholder="https://www.tiktok.com/@yourname/video/..." required>
+            <input id="predTags" type="number" min="0" max="30" placeholder="Hashtags (auto)">
+            <button class="btn" type="submit">Predict</button>
+          </form>
+          <div class="pred-result" id="predResult" hidden>
+            <div class="ring" id="ring"><div class="ring-in"><span id="ringValue">0%</span></div></div>
+            <div id="predText"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>All synced videos</h3>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>Date</th><th>Caption</th><th class="r">Views</th><th class="r">Likes</th><th class="r">Comments</th><th class="r">Shares</th><th class="r">Engagement</th><th>Breakout</th></tr>
+              </thead>
+              <tbody id="videoRows"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CSMAFIA -->
+    <section class="tab" id="tab-csmafia" hidden>
+      <div class="row2">
+        <div class="card calc">
+          <h3>Payout calculator</h3>
+          <p class="muted small">$0.75 per 1,000 views · allowed range 1,000 – 300,000 views</p>
+          <div class="stack">
+            <input id="calcRange" type="range" min="1000" max="300000" step="500" value="10000">
+            <input id="calcViews" type="number" min="1000" max="300000" step="1" value="10000">
+            <p class="error" id="calcError"></p>
+          </div>
+          <div class="calc-grid" id="calcResult">
+            <div><span>USD</span><b id="calcUsd">-</b></div>
+            <div><span>GBP</span><b id="calcGbp">-</b></div>
+            <div><span>PLN</span><b id="calcPln">-</b></div>
+            <div><span>USDT</span><b id="calcUsdt">-</b></div>
+            <div><span>TRX</span><b id="calcTrx">-</b></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Total income</h3>
+          <div class="big" id="incTotal">0.00 USDT</div>
+          <p class="muted" id="incTotalLocal"></p>
+          <p class="muted small">Income is entered manually in USDT.</p>
+        </div>
+      </div>
+
+      <div class="gate" id="gateIncome" hidden>
+        <p>Log in with TikTok to use the Income Manager.</p>
+        <a class="btn" href="/auth/tiktok">Log in with TikTok</a>
+      </div>
+
+      <div id="incomeBody" hidden>
+        <div class="card">
+          <h3>UK tax tracker</h3>
+          <p class="muted small" id="taxYear"></p>
+          <div class="tax-block">
+            <div class="tax-row"><span id="taxLabel1"></span><b id="taxVal1"></b></div>
+            <div class="bar"><i id="taxBar1"></i></div>
+          </div>
+          <div class="tax-block">
+            <div class="tax-row"><span id="taxLabel2"></span><b id="taxVal2"></b></div>
+            <div class="bar"><i id="taxBar2"></i></div>
+          </div>
+          <div class="warn" id="taxWarning"></div>
+          <p class="muted small">Estimate only, not tax advice. Thresholds are set in server.js and can be checked with HMRC or an accountant.</p>
+        </div>
+
+        <div class="row2">
+          <div class="card">
+            <h3>Add income</h3>
+            <form id="incForm" class="stack">
+              <input id="incDate" type="date" required>
+              <input id="incAmount" type="number" min="0.01" step="0.01" placeholder="Amount in USDT" required>
+              <input id="incNote" type="text" maxlength="120" placeholder="Note (brand, campaign…)">
+              <button class="btn" type="submit">Add entry</button>
+            </form>
+          </div>
+          <div class="card">
+            <div class="card-head">
+              <h3>Income chart</h3>
+              <div class="seg">
+                <button data-range="week">Week</button>
+                <button data-range="month" class="active">Month</button>
+                <button data-range="year">Year</button>
+                <button data-range="lifetime">Lifetime</button>
+              </div>
+            </div>
+            <div class="chart"><canvas id="chartIncome"></canvas></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>All entries</h3>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Date</th><th>Note</th><th class="r">USDT</th><th class="r">Value</th><th></th></tr></thead>
+              <tbody id="incList"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
